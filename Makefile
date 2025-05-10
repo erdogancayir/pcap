@@ -1,44 +1,49 @@
-# Compiler and flags
-CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude -pthread -DDEBUG_MODE -g3
-LDFLAGS = -lpcap
+# Project Name and Compiler
+NAME        := packet_sniffer
+CC          := gcc
+
+# Flags
+CFLAGS      := -Wall -Wextra -Iinclude -Imy_libc -pthread -DDEBUG_MODE -g3
+DEBUG_FLAGS := -g3 -DDEBUG_MODE
+LDFLAGS     := -lpcap
 
 # Directories
-SRC_DIR = source
-OBJ_DIR = obj
+SRC_DIR     := source
+OBJ_DIR     := obj
+LIBC_DIR    := my_libc
 
-# Source and object files
-SRCS := $(shell find $(SRC_DIR) -name '*.c')
-OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+# Source files
+SRCS        := $(shell find $(SRC_DIR) -name '*.c') $(shell find $(LIBC_DIR) -name '*.c')
+OBJS        := $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
 
+# Default target
+all: $(NAME)
 
-BASE_FLAGS = -Wall -Wextra -Iinclude -pthread
-DEBUG_FLAGS = -g3 -DDEBUG_MODE
-CFLAGS = $(BASE_FLAGS)
-
-
-# Target executable
-TARGET = packet_sniffer
-
-# Default build
-all: $(TARGET)
-
-# Link object files into the final binary
-$(TARGET): $(OBJS)
-	@echo "🔗 Linking target..."
+# Link the executable
+$(NAME): $(OBJS)
+	@echo "🔗 Linking $(NAME)..."
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Compile each source file into object file
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+# Compile source and libc files into object files
+$(OBJ_DIR)/%.o: %.c
 	@echo "🛠 Compiling $<"
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Debug target
 debug: CFLAGS += $(DEBUG_FLAGS)
-debug: $(TARGET)
+debug: re
 
-# Clean build artifacts
+# Clean object files and binary
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET)
+	@echo "🧹 Cleaning..."
+	rm -rf $(OBJ_DIR)
 
-.PHONY: all clean
+fclean: clean
+	@echo "🗑 Removing binary..."
+	rm -f $(NAME)
+
+# Rebuild everything
+re: fclean all
+
+.PHONY: all debug clean fclean re

@@ -20,6 +20,8 @@
         "tuple": "c",
         "variant": "c",
         "stdint.h": "c",
-        "packet_queue.h": "c"
+        "packet_queue.h": "c",
+        "my_libc.h": "c",
+        "unistd.h": "c"
     }
 }
