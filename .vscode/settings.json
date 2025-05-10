@@ -3,6 +3,23 @@
         "cli_config.h": "c",
         "stdlib.h": "c",
         "string.h": "c",
-        "input_type.h": "c"
+        "input_type.h": "c",
+        "input_handler.h": "c",
+        "pcap.h": "c",
+        "stdio.h": "c",
+        "input_handle_interface.h": "c",
+        "cli_parser.h": "c",
+        "input_dispatch.h": "c",
+        "input_register.h": "c",
+        "pthread.h": "c",
+        "__hash_table": "c",
+        "array": "c",
+        "type_traits": "c",
+        "limits": "c",
+        "ratio": "c",
+        "tuple": "c",
+        "variant": "c",
+        "stdint.h": "c",
+        "packet_queue.h": "c"
     }
 }

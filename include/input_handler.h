@@ -1,18 +1,17 @@
 #ifndef INPUT_HANDLER_H
 #define INPUT_HANDLER_H
 
-typedef enum e_input_type {
-    INPUT_TYPE_INTERFACE,
-    INPUT_TYPE_PCAP_FILE,
-    INPUT_TYPE_MAX
-} input_type_e;
+#include "cli_config.h"
+#include "packet_queue.h"
 
 typedef struct s_input_handler {
-    int (*handler)(const char *input_source);
+    int (*handler)(packet_queue_t *packet_queue);
 } t_input_handler;
 
-// Ana handler fonksiyonlar
-int input_handle_interface(const char *interface_name);
-int input_handle_pcap_file(const char *filename);
+int input_handle_interface(packet_queue_t *packet_queue);
+int input_handle_pcap_file(packet_queue_t *packet_queue);
 
-#endif // INPUT_HANDLER_H
+void *sniffer_thread(void *arg);
+void *packet_writer_thread(void *arg);
+
+#endif

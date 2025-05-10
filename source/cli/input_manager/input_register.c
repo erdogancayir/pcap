@@ -6,7 +6,7 @@
 
 static t_input_handler g_input_handlers[INPUT_TYPE_MAX];
 
-int register_input_handler(input_type_e type, int (*handler)(const char *))
+int register_input_handler(input_type_e type, int (*handler)(packet_queue_t *))
 {
     if (type < 0 || type >= INPUT_TYPE_MAX || handler == NULL)
         return -1;
