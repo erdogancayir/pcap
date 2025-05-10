@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cli_config.h": "c",
+        "stdlib.h": "c",
+        "string.h": "c",
+        "input_type.h": "c"
+    }
+}
