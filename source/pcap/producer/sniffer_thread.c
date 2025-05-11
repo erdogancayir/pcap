@@ -9,9 +9,7 @@ void *sniffer_thread(void *arg)
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *handle;
 
-    cli_config_t *cli_config = packet_queue->cli_config;
-
-    handle = pcap_open_live(cli_config->interface_or_file, BUFSIZ, 1, 100, errbuf);
+    handle = pcap_open_live(packet_queue->cli_config->interface_or_file, BUFSIZ, 1, 100, errbuf);
     if (!handle) {
         fprintf(stderr, "pcap_open_live() failed: %s\n", errbuf);
         pthread_exit(NULL);

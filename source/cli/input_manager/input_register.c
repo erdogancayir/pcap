@@ -1,6 +1,4 @@
 #include "input_handler.h"
-#include "input_handler.h"
-#include "cli_config.h"
 
 #include <stdio.h>
 

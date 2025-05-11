@@ -17,7 +17,7 @@ typedef struct {
     pthread_cond_t not_empty;
     pthread_cond_t not_full;
 
-    cli_config_t *cli_config;
+    const cli_config_t *cli_config;
 } packet_queue_t;
 
 void packet_queue_init(packet_queue_t *q);

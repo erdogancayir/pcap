@@ -1,10 +1,7 @@
-#include "input_handler.h"
+#include "input_dispatch.h"
+#include "input_register.h"
 #include "packet_queue.h"
 
-#include "cli_config.h"
-#include "input_register.h"
-#include "input_dispatch.h"
-#include "cli_parser.h"
 #include <stdio.h>
 
 int dispatch_input_handler(packet_queue_t *packet_queue)
