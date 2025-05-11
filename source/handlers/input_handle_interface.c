@@ -1,10 +1,10 @@
 #include "input_handler.h"
 #include "packet_queue.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include "debug_mode.h"
 
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int input_handle_interface(packet_queue_t *packet_queue)

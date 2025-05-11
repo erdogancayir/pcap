@@ -14,15 +14,18 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    packet_queue_t queue;
-    packet_queue_init(&queue);
-    queue.cli_config = &config;
+    packet_queue_t *queue = packet_queue_create(&config);
+    if (!queue) {
+        fprintf(stderr, "Failed to allocate packet queue.\n");
+        return 1;
+    }
     
     register_all_input_handlers();
 
-    if (dispatch_input_handler(&queue) != 0)
+    if (dispatch_input_handler(queue) != 0)
         return 1;
 
+    packet_queue_destroy(queue);
     free_config(&config);
 
     return 0;
