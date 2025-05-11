@@ -7,7 +7,6 @@
 #include "packet_queue.h"
 #include "debug_mode.h"
 
-
 int main(int argc, char **argv)
 {
     cli_config_t config;

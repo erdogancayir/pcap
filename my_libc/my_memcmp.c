@@ -1,25 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   my_libc.h                                          :+:      :+:    :+:   */
+/*   my_memcmp.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ecayir <erdogancayir>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/10 20:36:12 by ecayir            #+#    #+#             */
-/*   Updated: 2025/05/10 20:36:14 by ecayir           ###   ########.fr       */
+/*   Created: 2025/05/11 11:55:43 by ecayir            #+#    #+#             */
+/*   Updated: 2025/05/11 11:55:48 by ecayir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MY_LIBC_H
-#define MY_LIBC_H
+#include "my_libc.h"
 
-# include <unistd.h>
-# include <stdlib.h>
+int		my_memcmp(const void *s1, const void *s2, size_t n)
+{
+	size_t	i;
 
-void	*my_memset(void *b, int c, size_t len);
-int     my_strcmp(const char *s1, const char *s2);
-int		my_memcmp(const void *s1, const void *s2, size_t n);
-char	*my_strncpy(char *dst, const char *src, size_t len);
-char	*my_strnstr(const char *haystack, const char *needle, size_t len);
-
-#endif
+	i = 0;
+	while (i < n)
+	{
+		if (((unsigned char *)s1)[i] != ((unsigned char *)s2)[i])
+			return (((unsigned char *)s1)[i] - ((unsigned char *)s2)[i]);
+		i++;
+	}
+	return (0);
+}

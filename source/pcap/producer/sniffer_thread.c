@@ -1,10 +1,10 @@
 #include <pcap.h>
 #include "packet_queue.h"
 #include "debug_mode.h"
+#include "packet_handler.h"
 
 void *sniffer_thread(void *arg)
 {
-    DEBUG("[INFO] Starting sniffer thread...");
     packet_queue_t *packet_queue = (packet_queue_t *)arg;
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *handle;
@@ -33,7 +33,6 @@ void *sniffer_thread(void *arg)
         pthread_exit(NULL);
     }
 
-    DEBUG("[INFO] Listening on %s (filter: %s)", cli_config->interface_or_file, filter_exp);
     pcap_freecode(&fp);
 
     pcap_loop(handle, 0, packet_handler, (u_char *)packet_queue);

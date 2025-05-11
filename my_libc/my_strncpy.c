@@ -1,25 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   my_libc.h                                          :+:      :+:    :+:   */
+/*   my_strncpy.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ecayir <erdogancayir>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/10 20:36:12 by ecayir            #+#    #+#             */
-/*   Updated: 2025/05/10 20:36:14 by ecayir           ###   ########.fr       */
+/*   Created: 2025/05/11 11:58:25 by ecayir            #+#    #+#             */
+/*   Updated: 2025/05/11 11:58:26 by ecayir           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MY_LIBC_H
-#define MY_LIBC_H
+#include "my_libc.h"
 
-# include <unistd.h>
-# include <stdlib.h>
+char	*my_strncpy(char *dst, const char *src, size_t len)
+{
+	size_t i;
 
-void	*my_memset(void *b, int c, size_t len);
-int     my_strcmp(const char *s1, const char *s2);
-int		my_memcmp(const void *s1, const void *s2, size_t n);
-char	*my_strncpy(char *dst, const char *src, size_t len);
-char	*my_strnstr(const char *haystack, const char *needle, size_t len);
-
-#endif
+	i = 0;
+	while ((src[i] != '\0') && (i < len))
+	{
+		dst[i] = src[i];
+		i++;
+	}
+	while (i < len)
+	{
+		dst[i] = '\0';
+		i++;
+	}
+	return (dst);
+}
