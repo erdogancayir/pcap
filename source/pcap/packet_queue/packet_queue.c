@@ -91,3 +91,16 @@ int packet_queue_dequeue(packet_queue_t *q, captured_packet_t *out_packet)
     // DEBUG("\033[1;32m[UNLOCK] MUTEX unlocked in dequeue\033[0m");
     return 0;
 }
+
+void packet_queue_mark_done(packet_queue_t *q)
+{
+    pthread_mutex_lock(&q->mutex);
+    q->done = 1;
+
+    pthread_cond_broadcast(&q->not_empty);
+    pthread_cond_broadcast(&q->not_full);
+
+    pthread_mutex_unlock(&q->mutex);
+
+    //DEBUG("[INFO] Queue marked as done.");
+}

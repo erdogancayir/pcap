@@ -54,6 +54,10 @@ int input_handle_pcap_file(packet_queue_t *packet_queue)
     pcap_loop(handle, 0, packet_handler, (u_char *)packet_queue);
     pcap_close(handle);
 
+    DEBUG("pcap_loop() finished.");
+
+    packet_queue_mark_done(packet_queue);
+
     // Wait for consumer thread to finish
     pthread_join(consumer_thread_tid, NULL);
 

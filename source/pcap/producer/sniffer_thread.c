@@ -31,10 +31,7 @@ void *sniffer_thread(void *arg)
 
     pcap_close(handle);
 
-    pthread_mutex_lock(&queue->mutex);
-    queue->done = 1;
-    pthread_cond_signal(&queue->not_empty);
-    pthread_mutex_unlock(&queue->mutex);
+    packet_queue_mark_done(queue);
 
     LOG_INFO("Sniffer thread finished.");
     return NULL;

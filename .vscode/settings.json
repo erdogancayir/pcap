@@ -35,6 +35,7 @@
         "captured_packet.h": "c",
         "ethernet.h": "c",
         "signal_handler.h": "c",
-        "signal.h": "c"
+        "signal.h": "c",
+        "queue": "c"
     }
 }

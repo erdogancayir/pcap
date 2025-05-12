@@ -28,4 +28,6 @@ void packet_queue_destroy(packet_queue_t *q);
 void packet_queue_enqueue(packet_queue_t *q, const captured_packet_t *packet);
 int  packet_queue_dequeue(packet_queue_t *q, captured_packet_t *out_packet);
 
+void packet_queue_mark_done(packet_queue_t *q);
+
 #endif
