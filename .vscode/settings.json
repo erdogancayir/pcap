@@ -27,6 +27,12 @@
         "tcp_tracker.h": "c",
         "uthash.h": "c",
         "packet_handler.h": "c",
-        "inttypes.h": "c"
+        "inttypes.h": "c",
+        "if_ether.h": "c",
+        "ip.h": "c",
+        "tcp.h": "c",
+        "udp.h": "c",
+        "captured_packet.h": "c",
+        "ethernet.h": "c"
     }
 }

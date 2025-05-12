@@ -1,7 +1,8 @@
-#include <pcap.h>
+#include "packet_handler.h"
 #include "packet_queue.h"
 #include "debug_mode.h"
-#include "packet_handler.h"
+
+#include <pcap.h>
 
 void *sniffer_thread(void *arg)
 {

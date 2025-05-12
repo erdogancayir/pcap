@@ -1,12 +1,9 @@
-#include <netinet/udp.h>
-#include <string.h>
-#include <stdio.h>
-#include <arpa/inet.h>
-#include <netinet/ip.h>
 #include <net/ethernet.h>
+#include <netinet/udp.h>
+#include <stdio.h>
 
-#include "packet_handler.h"
 #include "captured_packet.h"
+#include "packet_handler.h"
 #include "packet_queue.h"
 
 #include "my_libc.h"

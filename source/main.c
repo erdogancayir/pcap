@@ -1,11 +1,10 @@
-#include "cli_config.h"
-#include "input_handler.h"
 #include "input_register.h"
 #include "input_dispatch.h"
-#include "cli_parser.h"
-
+#include "input_handler.h"
 #include "packet_queue.h"
 #include "debug_mode.h"
+#include "cli_config.h"
+#include "cli_parser.h"
 
 int main(int argc, char **argv)
 {

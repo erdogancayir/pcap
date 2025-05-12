@@ -1,9 +1,10 @@
 #ifndef PACKET_QUEUE_H
 #define PACKET_QUEUE_H
 
-#include <pthread.h>
-#include "cli_config.h"
 #include "captured_packet.h"
+#include "cli_config.h"
+
+#include <pthread.h>
 
 #define PACKET_QUEUE_SIZE 4096
 

@@ -1,37 +1,18 @@
-#include <pcap.h>
-#include <stdio.h>
+#include <net/ethernet.h>
+#include <netinet/tcp.h>
 #include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
-#include <netinet/ip_icmp.h>
-#include <arpa/inet.h>
-#include <net/ethernet.h>
-
-#include "packet_queue.h"
-#define ETHERNET_HDR_LEN 14
-
-
-#include <netinet/tcp.h>
-#include <string.h>
 #include <stdio.h>
-#include <arpa/inet.h>
-#include <netinet/ip.h>
-#include <net/ethernet.h>
 
-#include "packet_handler.h"
 #include "captured_packet.h"
+#include "packet_handler.h"
 #include "packet_queue.h"
-
+#include "tcp_tracker.h"
 #include "debug_mode.h"
 
 #include "my_libc.h"
 
 #define ETHERNET_HDR_LEN 14
 
-#include "tcp_tracker.h" // Eklenmeli
 
 void handle_tcp_packet(const u_char *packet, const struct pcap_pkthdr *header,
                        packet_queue_t *queue, const struct ip *ip_header, int ip_header_len)

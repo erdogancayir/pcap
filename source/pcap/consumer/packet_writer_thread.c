@@ -1,18 +1,7 @@
 #include "packet_queue.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <arpa/inet.h>
-#include <netinet/if_ether.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
-#include "debug_mode.h"
-#include <netinet/udp.h>
-
-#include "packet_queue.h"
 #include "tcp_tracker.h"
 #include "debug_mode.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +24,7 @@ void *packet_writer_thread(void *arg)
     int counter = 0;
     while (1) {
 
-        if (counter == 1000 || packet_queue->count == 0) {
+        if (counter == 1000) {
             // signal for waiting thread pthread_cond_wait
             pthread_cond_signal(&packet_queue->not_empty);
             break;

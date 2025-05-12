@@ -1,10 +1,6 @@
 #include "packet_handler.h"
 #include "packet_queue.h"
 #include "debug_mode.h"
-#include <netinet/ip.h>
-#include <netinet/in.h>
-#include <net/ethernet.h>
-#include <arpa/inet.h>
 
 #define ETHERNET_HDR_LEN 14
 

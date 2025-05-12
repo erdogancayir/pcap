@@ -1,19 +1,13 @@
+#include <netinet/tcp.h>
+#include <time.h>
+
 #include "tcp_tracker.h"
+#include "my_libc.h"
 #include "uthash.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <stdint.h>
-#include <arpa/inet.h>
-#include <netinet/tcp.h>
-#include <netinet/ip.h>
-
 static tcp_conn_map_t *tcp_table = NULL;
-static FILE *output_fp = NULL;  // bağlantı kapanış bilgileri buraya yazılacak
+static FILE *output_fp = NULL;
 
-// Millisaniye hassasiyetli zaman ölçümü
 static uint64_t get_current_time_ms(void)
 {
     struct timespec ts;
@@ -21,7 +15,6 @@ static uint64_t get_current_time_ms(void)
     return (uint64_t)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
 }
 
-// Writer thread başında dosya atanır
 void tcp_tracker_set_output_file(FILE *fp)
 {
     output_fp = fp;
@@ -53,13 +46,11 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
         HASH_ADD_STR(tcp_table, key, entry);
     }
 
-    // IN / OUT yönü belirle
-    if (strcmp(src_ip, entry->conn_data.src_ip) == 0 && src_port == entry->conn_data.src_port)
+    if (my_strcmp(src_ip, entry->conn_data.src_ip) == 0 && src_port == entry->conn_data.src_port)
         entry->conn_data.packet_count_out++;
     else
         entry->conn_data.packet_count_in++;
 
-    // Bağlantı kapandı mı?
     if (tcp_flags & (TH_FIN | TH_RST)) {
         entry->conn_data.end_time_ms = get_current_time_ms();
         uint64_t duration = entry->conn_data.end_time_ms - entry->conn_data.start_time_ms;
@@ -75,7 +66,6 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
         fprintf(out, "---------------------------------------\n");
         fflush(out);
 
-        // Tabloyu temizle
         HASH_DEL(tcp_table, entry);
         free(entry);
     }

@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <pcap.h>
-
-#include "cli_config.h"
-#include "packet_queue.h"
-
+#include "packet_handler.h"
 #include "input_handler.h"
 #include "packet_queue.h"
 #include "debug_mode.h"
@@ -12,9 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pcap.h>
 
-#include "packet_handler.h"
 
 int input_handle_pcap_file(packet_queue_t *packet_queue)
 {
