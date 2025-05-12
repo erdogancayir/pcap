@@ -22,7 +22,19 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char
             handle_udp_packet(packet, queue, ip_header);
             break;
         default:
-            DEBUG("[INFO] Unknown protocol: %u", protocol);
+            //DEBUG("[INFO] Unknown protocol: %s", protocol_to_string(protocol));
             break;
+    }
+}
+
+const char *protocol_to_string(uint8_t proto)
+{
+    switch (proto) {
+        case IPPROTO_TCP:  return "TCP";
+        case IPPROTO_UDP:  return "UDP";
+        case IPPROTO_ICMP: return "ICMP";
+        case IPPROTO_IGMP: return "IGMP";
+        case IPPROTO_IP:   return "IP";
+        default:           return "UNKNOWN";
     }
 }

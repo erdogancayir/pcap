@@ -19,5 +19,6 @@ typedef struct s_cli_config
 
 void print_usage(const char *progname);
 void free_config(cli_config_t *config);
+void print_config_summary(const cli_config_t *config);
 
 #endif

@@ -15,6 +15,8 @@ void handle_tcp_packet(const u_char *packet, const struct pcap_pkthdr *header,
                        packet_queue_t *queue, const struct ip *ip_header, int ip_header_len)
 {
     const struct ether_header *eth = (struct ether_header *)packet;
+    if (ntohs(eth->ether_type) != ETHERTYPE_IP) return;
+
     const struct tcphdr *tcp_header = (struct tcphdr *)((u_char *)ip_header + ip_header_len);
     int tcp_header_len = tcp_header->th_off * 4;
 
@@ -64,37 +66,4 @@ void handle_tcp_packet(const u_char *packet, const struct pcap_pkthdr *header,
     }
 
     packet_queue_enqueue(queue, &captured_packet);
-
-    //packet_queue_debug_dump(queue);
 }
-
-#ifdef DEBUG_MODE
-void packet_queue_debug_dump(const packet_queue_t *q)
-{
-    if (!q || !q->buffer) {
-        DEBUG("[ERROR] queue or buffer is NULL");
-        return;
-    }
-
-    DEBUG("[DEBUG] Dumping packet queue (%d items):", q->count);
-
-    int index = q->head;
-    for (int i = 0; i < q->count; i++) {
-        const captured_packet_t *pkt = &q->buffer[index];
-
-        DEBUG("[%d] %s:%u -> %s:%u %s",
-              i,
-              pkt->src_ip,
-              pkt->src_port,
-              pkt->dst_ip,
-              pkt->dst_port,
-              pkt->is_http ? "[HTTP]" : "");
-
-        index = (index + 1) % PACKET_QUEUE_SIZE;
-    }
-}
-#else
-void packet_queue_debug_dump(const packet_queue_t *q) {
-    (void)q; // suppress unused parameter warning
-}
-#endif

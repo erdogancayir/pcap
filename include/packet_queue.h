@@ -13,6 +13,7 @@ typedef struct {
     int head;
     int tail;
     int count;
+    int done;
 
     pthread_mutex_t mutex;
     pthread_cond_t not_empty;

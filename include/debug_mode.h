@@ -3,11 +3,12 @@
 
 #include <stdio.h>
 
-// ANSI renk kodları
-#define COLOR_RESET   "\x1b[0m"
-#define COLOR_YELLOW  "\x1b[33m"
-#define COLOR_CYAN    "\x1b[36m"
-#define COLOR_BOLD    "\x1b[1m"
+#define COLOR_RESET   "\033[0m"
+#define COLOR_RED     "\033[1;31m"
+#define COLOR_GREEN   "\033[1;32m"
+#define COLOR_YELLOW  "\033[1;33m"
+#define COLOR_BLUE    "\033[1;34m"
+#define COLOR_CYAN    "\033[1;36m"
 
 #ifdef DEBUG_MODE
     #define DEBUG(...) do { \
@@ -19,6 +20,9 @@
     #define DEBUG(...) do {} while (0)
 #endif
 
-void packet_queue_debug_dump(const packet_queue_t *q);
+#define LOG_INFO(fmt, ...)   fprintf(stderr, COLOR_GREEN  "[INFO] " fmt COLOR_RESET "\n", ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...)   fprintf(stderr, COLOR_YELLOW "[WARN] " fmt COLOR_RESET "\n", ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...)  fprintf(stderr, COLOR_RED    "[ERROR] " fmt COLOR_RESET "\n", ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...)  fprintf(stderr, COLOR_BLUE   "[DEBUG] " fmt COLOR_RESET "\n", ##__VA_ARGS__)
 
 #endif

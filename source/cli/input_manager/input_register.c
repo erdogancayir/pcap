@@ -1,4 +1,5 @@
 #include "input_handler.h"
+#include "debug_mode.h"
 
 #include <stdio.h>
 
@@ -17,6 +18,8 @@ void register_all_input_handlers(void)
 {
     register_input_handler(INPUT_TYPE_INTERFACE, input_handle_interface);
     register_input_handler(INPUT_TYPE_PCAP_FILE, input_handle_pcap_file);
+
+    LOG_DEBUG("Registered all input type handlers.");
 }
 
 const t_input_handler *get_input_handlers(void)

@@ -17,41 +17,33 @@ void *packet_writer_thread(void *arg)
         pthread_exit(NULL);
     }
 
-    tcp_tracker_set_output_file(fp); // bağlantı kapanış loglarını da bu dosyaya yaz
+    tcp_tracker_set_output_file(fp);
 
-    DEBUG("[INFO] Output thread started. Writing to: %s", cli_config->output_file);
-
-    int counter = 0;
     while (1) {
-
-        if (counter == 1000) {
-            // signal for waiting thread pthread_cond_wait
-            pthread_cond_signal(&packet_queue->not_empty);
-            break;
-        }
-        counter++;
-
-        DEBUG("-- %d", counter);
         captured_packet_t pkt;
-        if (packet_queue_dequeue(packet_queue, &pkt) != 0) {
-            continue;
-        }
-        // MAC, IP, PORT bilgileri
+
+        int status = packet_queue_dequeue(packet_queue, &pkt);
+        if (status == -1)
+            break;  // queue done and empty
+
+        // MAC, IP, PORT
         fprintf(fp, "MAC: %s -> %s\n", pkt.src_mac, pkt.dst_mac);
         fprintf(fp, "IP : %s -> %s\n", pkt.src_ip, pkt.dst_ip);
         fprintf(fp, "PORT: %u -> %u\n", pkt.src_port, pkt.dst_port);
-
-        // HTTP varsa
         if (pkt.is_http) {
             fprintf(fp, "HTTP HOST       : %s\n", pkt.host);
             fprintf(fp, "HTTP USER-AGENT : %s\n", pkt.user_agent);
         }
-
         fprintf(fp, "---------------------------------------\n");
-        fflush(fp);  // canlı loglama için
+
+        static int flush_counter = 0;
+        if (++flush_counter % 100 == 0)
+        {
+            fflush(fp);
+            flush_counter = 0;
+        }
     }
 
-    DEBUG("[INFO] Output thread exiting.");
     fclose(fp);
     pthread_exit(NULL);
 }

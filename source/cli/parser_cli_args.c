@@ -39,6 +39,7 @@ int parse_cli_args(int argc, char **argv, cli_config_t *config)
         return -1;
     }
 
+    print_config_summary(config);
     return 0;
 }
 
@@ -63,4 +64,17 @@ void free_config(cli_config_t *config)
         free(config->output_file);
         config->output_file = NULL;
     }
+}
+
+void print_config_summary(const cli_config_t *config)
+{
+    printf("\033[1;36m"); // Cyan
+    printf("========== Configuration ==========" "\n");
+    printf("Input Type      : %s\n",
+           config->input_type == INPUT_TYPE_INTERFACE ? "interface" :
+           config->input_type == INPUT_TYPE_PCAP_FILE ? "pcap_file" : "unknown");
+    printf("Source          : %s\n", config->interface_or_file);
+    printf("Output File     : %s\n", config->output_file);
+    printf("===================================" "\n");
+    printf("\033[0m");
 }

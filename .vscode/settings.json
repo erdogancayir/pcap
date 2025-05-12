@@ -33,6 +33,8 @@
         "tcp.h": "c",
         "udp.h": "c",
         "captured_packet.h": "c",
-        "ethernet.h": "c"
+        "ethernet.h": "c",
+        "signal_handler.h": "c",
+        "signal.h": "c"
     }
 }
