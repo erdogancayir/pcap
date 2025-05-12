@@ -9,13 +9,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 int input_handle_pcap_file(packet_queue_t *packet_queue)
 {
     LOG_INFO("Reading from pcap file: %s", packet_queue->cli_config->interface_or_file);
 
-    pthread_t consumer_thread_tid;
-    int ret = pthread_create(&consumer_thread_tid, NULL, packet_writer_thread, (void *)packet_queue);
+    pthread_t consumer_writer_tid;
+    int ret = pthread_create(&consumer_writer_tid, NULL, writer_thread, (void *)packet_queue);
     if (ret != 0) {
         LOG_ERROR("Error creating consumer thread: %s", strerror(ret));
         return -1;
@@ -48,8 +47,6 @@ int input_handle_pcap_file(packet_queue_t *packet_queue)
 
     pcap_freecode(&fp);
 
-    LOG_INFO("Starting packet processing from pcap...");
-
     // No producer thread needed — we're using pcap_loop() in the main thread
     pcap_loop(handle, 0, packet_handler, (u_char *)packet_queue);
     pcap_close(handle);
@@ -59,7 +56,7 @@ int input_handle_pcap_file(packet_queue_t *packet_queue)
     packet_queue_mark_done(packet_queue);
 
     // Wait for consumer thread to finish
-    pthread_join(consumer_thread_tid, NULL);
+    pthread_join(consumer_writer_tid, NULL);
 
     DEBUG("Finished processing pcap file.");
     return EXIT_SUCCESS;

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void *packet_writer_thread(void *arg)
+void *writer_thread(void *arg)
 {
     packet_queue_t *packet_queue = (packet_queue_t *)arg;
     const cli_config_t *cli_config = packet_queue->cli_config;

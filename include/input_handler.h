@@ -12,6 +12,6 @@ int input_handle_interface(packet_queue_t *packet_queue);
 int input_handle_pcap_file(packet_queue_t *packet_queue);
 
 void *sniffer_thread(void *arg);
-void *packet_writer_thread(void *arg);
+void *writer_thread(void *arg);
 
 #endif

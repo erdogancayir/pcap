@@ -19,12 +19,19 @@ void *sniffer_thread(void *arg)
     set_pcap_handle(handle);
 
     struct bpf_program fp;
-    if (pcap_compile(handle, &fp, "tcp or udp", 0, PCAP_NETMASK_UNKNOWN) == -1 ||
-        pcap_setfilter(handle, &fp) == -1) {
-        fprintf(stderr, "pcap filter error: %s\n", pcap_geterr(handle));
+        if (pcap_compile(handle, &fp, "tcp or udp", 0, PCAP_NETMASK_UNKNOWN) == -1) {
+        fprintf(stderr, "pcap_compile() failed: %s\n", pcap_geterr(handle));
         pcap_close(handle);
         pthread_exit(NULL);
     }
+
+    if (pcap_setfilter(handle, &fp) == -1) {
+        fprintf(stderr, "pcap_setfilter() failed: %s\n", pcap_geterr(handle));
+        pcap_freecode(&fp);
+        pcap_close(handle);
+        pthread_exit(NULL);
+    }
+
     pcap_freecode(&fp);
 
     pcap_loop(handle, 0, packet_handler, (u_char *)queue);
