@@ -19,4 +19,6 @@
     #define DEBUG(...) do {} while (0)
 #endif
 
+void packet_queue_debug_dump(const packet_queue_t *q);
+
 #endif

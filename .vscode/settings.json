@@ -23,6 +23,10 @@
         "packet_queue.h": "c",
         "my_libc.h": "c",
         "unistd.h": "c",
-        "debug_mode.h": "c"
+        "debug_mode.h": "c",
+        "tcp_tracker.h": "c",
+        "uthash.h": "c",
+        "packet_handler.h": "c",
+        "inttypes.h": "c"
     }
 }
