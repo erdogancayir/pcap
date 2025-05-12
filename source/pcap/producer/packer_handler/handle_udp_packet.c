@@ -8,8 +8,6 @@
 
 #include "my_libc.h"
 
-#define ETHERNET_HDR_LEN 14
-
 void handle_udp_packet(const u_char *packet, packet_queue_t *queue, const struct ip *ip_header)
 {
     const struct ether_header *eth = (struct ether_header *)packet;

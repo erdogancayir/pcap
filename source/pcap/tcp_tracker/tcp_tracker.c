@@ -60,9 +60,9 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
                 entry->conn_data.src_ip, entry->conn_data.src_port,
                 entry->conn_data.dst_ip, entry->conn_data.dst_port);
 
-        fprintf(out, "IN :  %lu packets\n", entry->conn_data.packet_count_in);
-        fprintf(out, "OUT:  %lu packets\n", entry->conn_data.packet_count_out);
-        fprintf(out, "Duration: %lu ms\n", duration);
+        fprintf(out, "IN :  %llu packets\n", entry->conn_data.packet_count_in);
+        fprintf(out, "OUT:  %llu packets\n", entry->conn_data.packet_count_out);
+        fprintf(out, "Duration: %llu ms\n", duration);
         fprintf(out, "---------------------------------------\n");
         fflush(out);
 

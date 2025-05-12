@@ -11,9 +11,6 @@
 
 #include "my_libc.h"
 
-#define ETHERNET_HDR_LEN 14
-
-
 void handle_tcp_packet(const u_char *packet, const struct pcap_pkthdr *header,
                        packet_queue_t *queue, const struct ip *ip_header, int ip_header_len)
 {
@@ -71,6 +68,7 @@ void handle_tcp_packet(const u_char *packet, const struct pcap_pkthdr *header,
     //packet_queue_debug_dump(queue);
 }
 
+#ifdef DEBUG_MODE
 void packet_queue_debug_dump(const packet_queue_t *q)
 {
     if (!q || !q->buffer) {
@@ -95,3 +93,8 @@ void packet_queue_debug_dump(const packet_queue_t *q)
         index = (index + 1) % PACKET_QUEUE_SIZE;
     }
 }
+#else
+void packet_queue_debug_dump(const packet_queue_t *q) {
+    (void)q; // suppress unused parameter warning
+}
+#endif

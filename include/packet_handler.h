@@ -1,6 +1,8 @@
 #ifndef PACKET_HANDLER_H
 #define PACKET_HANDLER_H
 
+#define ETHERNET_HDR_LEN 14
+
 #include "packet_queue.h"
 
 #include <netinet/ip.h>
