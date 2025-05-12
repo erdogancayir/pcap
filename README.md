@@ -160,3 +160,17 @@ All shared data structures (packet_queue, tcp_tracker) are protected with:
 Volatile flags (sig_atomic_t) for inter-thread signaling
 
 
+## 🔗 Related Projects
+
+Here are some of my other low-level network and systems programming projects:
+
+- 🛰️ [`ft_nmap`](https://github.com/erdogancayir/ft_nmap)  
+  A custom network scanner written in C that supports multiple scan types (SYN, NULL, FIN, XMAS, etc.) and raw socket usage, similar to the original `nmap`.
+
+- 🗺️ [`ft_traceroute`](https://github.com/erdogancayir/ft_traceroute)  
+  An implementation of the `traceroute` utility using ICMP packets and TTL manipulation to map the route packets take to a destination.
+
+- 🌐 [`Webserv42`](https://github.com/erdogancayir/Webserv42)  
+  A full-featured HTTP/1.1 web server built from scratch in C++, supporting GET, POST, DELETE, CGI execution, chunked transfer encoding, and more.
+
+> All of these projects were written from the ground up as part of my low-level networking and systems programming education, with performance and protocol fidelity in mind.
