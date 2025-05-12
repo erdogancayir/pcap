@@ -1,4 +1,4 @@
-# 🧠 Multi-threaded Packet Sniffer in C (libpcap-based)
+# Multi-threaded Packet Sniffer in C (libpcap-based)
 
 A high-performance, multi-threaded network packet sniffer written in C using the `libpcap` library. It supports real-time traffic capture from a network interface or offline analysis of `.pcap` files. The program extracts Ethernet, IP, TCP/UDP, and HTTP information, tracks TCP connections, and writes structured output to a text file.
 
@@ -20,7 +20,7 @@ A high-performance, multi-threaded network packet sniffer written in C using the
 - 📊 **TCP connection tracking**
   - Total packets IN/OUT
   - Connection duration in milliseconds
-- 🧠 Designed for high-speed with efficient queue and hash map structures
+- Designed for high-speed with efficient queue and hash map structures
 - ✋ Graceful shutdown on `SIGINT` (Ctrl+C)
 
 ---
