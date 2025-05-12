@@ -68,7 +68,7 @@ void free_config(cli_config_t *config)
 
 void print_config_summary(const cli_config_t *config)
 {
-    printf("\033[1;36m"); // Cyan
+    printf("\033[1;36m");
     printf("========== Configuration ==========" "\n");
     printf("Input Type      : %s\n",
            config->input_type == INPUT_TYPE_INTERFACE ? "interface" :
@@ -76,5 +76,5 @@ void print_config_summary(const cli_config_t *config)
     printf("Source          : %s\n", config->interface_or_file);
     printf("Output File     : %s\n", config->output_file);
     printf("===================================" "\n");
-    printf("\033[0m");
+    printf("\033[0m\n");
 }

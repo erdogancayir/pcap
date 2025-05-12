@@ -21,7 +21,7 @@ void sigint_handler(int signo) {
     (void)signo;
     stop_capture = 1;
 
-    LOG_WARN("SIGINT detected, stopping...");
+    LOG_WARN("\n📡 SIGINT detected, stopping... 📡");
 
     if (g_pcap_handle) {
         LOG_WARN("Stopping pcap loop...");

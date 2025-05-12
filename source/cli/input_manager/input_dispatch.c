@@ -15,6 +15,18 @@ int dispatch_input_handler(packet_queue_t *packet_queue)
         return -1;
     }
 
-    LOG_INFO("Dispatching input handler for type %d", input_type);
+    LOG_INFO("🚚 Dispatching input handler for type => %s 🚚", get_input_type_string(input_type));
     return handlers[input_type].handler(packet_queue);
+}
+
+const char *get_input_type_string(input_type_e input_type)
+{
+    switch (input_type) {
+        case INPUT_TYPE_INTERFACE:
+            return "Interface";
+        case INPUT_TYPE_PCAP_FILE:
+            return "PCAP File";
+        default:
+            return "Unknown";
+    }
 }

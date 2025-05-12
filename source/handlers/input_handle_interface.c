@@ -9,7 +9,7 @@
 
 int input_handle_interface(packet_queue_t *packet_queue)
 {
-    LOG_INFO("🔍 Capturing live packets from interface: %s 🔍", packet_queue->cli_config->interface_or_file);
+    LOG_INFO("🔍 Capturing live packets from interface => %s 🔍", packet_queue->cli_config->interface_or_file);
 
     pthread_t packet_writer_tid;
     int ret = pthread_create(&packet_writer_tid, NULL, packet_writer_thread, (void *)packet_queue);
