@@ -25,6 +25,10 @@ A high-performance, multi-threaded network packet sniffer written in C using the
 
 ---
 
+## 📊 Architecture Diagram
+
+![Screenshot 2025-05-12 at 23 09 21](https://github.com/user-attachments/assets/40b6b03f-a5c3-4a1d-a2c3-dc9ccfb776c3)
+
 ## 🛠️ Requirements
 
 - GCC (or any POSIX-compliant C compiler)
@@ -155,36 +159,4 @@ All shared data structures (packet_queue, tcp_tracker) are protected with:
 
 Volatile flags (sig_atomic_t) for inter-thread signaling
 
-## 📊 Architecture Diagram
 
-```mermaid
-flowchart LR
-    subgraph Input Source
-        A1[Live Interface] --> B[Sniffer Thread]
-        A2[PCAP File] --> B
-    end
-
-    subgraph Packet Capture & Parsing
-        B[Sniffer Thread]
-        B --> C[Extract Headers - MAC, IP, Ports]
-        C --> D[Detect HTTP - GET/POST, Host, UA]
-        D --> E[Track TCP Connections - Stats]
-        E --> F[Enqueue to Ring Buffer]
-    end
-
-    subgraph Queue
-        F[Bounded Ring Buffer] <--> G[Writer Thread]
-    end
-
-    subgraph Output
-        G --> H[Write to File]
-        E --> I[Print TCP Connection Summary]
-    end
-
-    subgraph Shutdown
-        J[Ctrl+C SIGINT]
-        J --> K[pcap_breakloop]
-        K --> B
-        J --> L[Mark Queue Done]
-        L --> G
-    end
