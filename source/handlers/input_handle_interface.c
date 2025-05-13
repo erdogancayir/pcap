@@ -32,11 +32,22 @@ int input_handle_interface(packet_queue_t *packet_queue)
     ret = pthread_create(&consumer_writer_tid, NULL, writer_thread, (void *)packet_queue);
     if (ret != 0) {
         LOG_ERROR("Error creating consumer thread: %s", strerror(ret));
+        // If consumer thread creation fails, we need to stop the producer
+        packet_queue_mark_done(packet_queue);
+        pthread_join(producer_sniffer_tid, NULL);
         return -1;
     }
+
+    // Wait for producer thread first - if it fails, we need to stop the consumer
+    void *producer_result;
+    pthread_join(producer_sniffer_tid, &producer_result);
     
-    // Wait for both threads to complete their tasks before exiting.
-    pthread_join(producer_sniffer_tid, NULL);
+    // If producer thread failed or exited early, mark queue as done
+    if (producer_result == NULL) {
+        packet_queue_mark_done(packet_queue);
+    }
+
+    // Now wait for consumer thread to finish
     pthread_join(consumer_writer_tid, NULL);
 
     LOG_INFO("Finished input_handle_interface.");

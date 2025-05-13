@@ -22,7 +22,8 @@ void *sniffer_thread(void *arg)
     pcap_t *handle = pcap_open_live(queue->cli_config->interface_or_file, BUFSIZ, 1, 100, errbuf);
     if (!handle) {
         fprintf(stderr, "pcap_open_live() failed: %s\n", errbuf);
-        pthread_exit(NULL);
+        packet_queue_mark_done(queue);  // Mark queue as done before exiting
+        pthread_exit((void *)1);  // Exit with non-zero status to indicate failure
     }
 
     // Store the handle globally so it can be closed on signal (e.g., SIGINT)
@@ -30,10 +31,11 @@ void *sniffer_thread(void *arg)
 
     // Compile a BPF filter to capture only TCP or UDP packets
     struct bpf_program fp;
-        if (pcap_compile(handle, &fp, "tcp or udp", 0, PCAP_NETMASK_UNKNOWN) == -1) {
+    if (pcap_compile(handle, &fp, "tcp or udp", 0, PCAP_NETMASK_UNKNOWN) == -1) {
         fprintf(stderr, "pcap_compile() failed: %s\n", pcap_geterr(handle));
         pcap_close(handle);
-        pthread_exit(NULL);
+        packet_queue_mark_done(queue);  // Mark queue as done before exiting
+        pthread_exit((void *)1);  // Exit with non-zero status to indicate failure
     }
 
     // Apply the filter to the capture session
@@ -41,7 +43,8 @@ void *sniffer_thread(void *arg)
         fprintf(stderr, "pcap_setfilter() failed: %s\n", pcap_geterr(handle));
         pcap_freecode(&fp);
         pcap_close(handle);
-        pthread_exit(NULL);
+        packet_queue_mark_done(queue);  // Mark queue as done before exiting
+        pthread_exit((void *)1);  // Exit with non-zero status to indicate failure
     }
 
     pcap_freecode(&fp);
@@ -56,5 +59,5 @@ void *sniffer_thread(void *arg)
     packet_queue_mark_done(queue);
 
     LOG_INFO("Sniffer thread finished.");
-    return NULL;
+    pthread_exit(NULL);  // Exit with success status
 }
