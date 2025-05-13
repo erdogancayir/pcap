@@ -31,6 +31,14 @@ int input_handle_interface(packet_queue_t *packet_queue)
     ret = pthread_create(&producer_sniffer_tid, NULL, sniffer_thread, (void *)packet_queue);
     if (ret != 0) {
         LOG_ERROR("Error creating sniffer thread: %s", strerror(ret));
+
+        pthread_mutex_lock(&packet_queue->mutex);
+        packet_queue->done = 1;
+        pthread_cond_signal(&packet_queue->not_empty); // Wake up writer if waiting
+        pthread_mutex_unlock(&packet_queue->mutex);
+        
+        pthread_join(consumer_writer_tid, NULL);
+
         return -1;
     }
 
