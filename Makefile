@@ -57,3 +57,33 @@ fclean: clean
 re: fclean all
 
 .PHONY: all debug clean fclean re
+
+
+# Tests
+TEST_DIR    := tests
+TEST_OBJDIR := $(TEST_DIR)/obj
+
+TEST_SRCS   := $(shell find $(TEST_DIR)/unit -name '*.c') $(TEST_DIR)/test_framework.c
+TEST_OBJS   := $(patsubst %.c, $(TEST_OBJDIR)/%.o, $(TEST_SRCS))
+TEST_BINS   := run_tests
+
+# Compile test object files
+$(TEST_OBJDIR)/%.o: %.c
+	@echo "$(BLUE)🧪 Compiling test$(RESET) $<"
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -I. -Iinclude -I$(TEST_DIR) -c $< -o $@
+
+# Link test executable
+$(TEST_BINS): $(TEST_OBJS)
+	@echo "$(GREEN)🔗 Linking test binary$(RESET)..."
+	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Run tests
+test: $(TEST_BINS)
+	@echo "$(BOLD)🔍 Running unit tests...$(RESET)"
+	@./$(TEST_BINS)
+
+# Clean tests
+test_clean:
+	@echo "$(YELLOW)🧹 Cleaning test objects...$(RESET)"
+	@rm -rf $(TEST_OBJDIR) $(TEST_BINS)

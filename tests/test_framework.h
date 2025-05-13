@@ -2,41 +2,19 @@
 #define TEST_FRAMEWORK_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <time.h>
 
-// Test result tracking
-typedef struct {
-    int total_tests;
-    int passed_tests;
-    int failed_tests;
-} TestStats;
+#define COLOR_RESET  "\x1b[0m"
+#define COLOR_GREEN  "\x1b[32m"
+#define COLOR_RED    "\x1b[31m"
+#define COLOR_YELLOW "\x1b[33m"
 
-// External declarations
-extern TestStats test_stats;
-extern void init_test_suite(void);
-extern void print_test_summary(void);
+#define TEST_ASSERT(cond, msg) \
+    do { \
+        if (!(cond)) { \
+            fprintf(stderr, COLOR_RED "[FAIL] %s:%d: %s" COLOR_RESET "\n", __FILE__, __LINE__, msg); \
+        } else { \
+            fprintf(stdout, COLOR_GREEN "[PASS] %s" COLOR_RESET "\n", msg); \
+        } \
+    } while (0)
 
-// Test utilities
-#define TEST_ASSERT(condition, message) do { \
-    test_stats.total_tests++; \
-    if (condition) { \
-        test_stats.passed_tests++; \
-        printf("✓ %s\n", message); \
-    } else { \
-        test_stats.failed_tests++; \
-        printf("✗ %s\n", message); \
-    } \
-} while(0)
-
-#define TEST_EQUAL(expected, actual, message) \
-    TEST_ASSERT((expected) == (actual), message)
-
-#define TEST_STRING_EQUAL(expected, actual, message) \
-    TEST_ASSERT(strcmp(expected, actual) == 0, message)
-
-#endif // TEST_FRAMEWORK_H 
+#endif
