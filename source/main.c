@@ -28,11 +28,14 @@ int main(int argc, char **argv)
         return 1;
     }
     
+    // Register input handler implementations (e.g., live interface, PCAP file)
     register_all_input_handlers();
 
+    // Dispatch based on selected input type
     if (dispatch_input_handler(queue) != 0)
         return 1;
 
+    // Cleanup resources
     packet_queue_destroy(queue);
     free_config(&config);
 

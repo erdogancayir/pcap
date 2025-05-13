@@ -5,9 +5,16 @@
 #include "my_libc.h"
 #include "uthash.h"
 
+// Global hash table for tracking active TCP connections
 static tcp_conn_map_t *tcp_table = NULL;
+
+// Output file handle used to log closed connections
 static FILE *output_fp = NULL;
 
+/**
+ * Gets the current time in milliseconds using a monotonic clock.
+ * This is used to track the start and end times of TCP connections.
+ */
 static uint64_t get_current_time_ms(void)
 {
     struct timespec ts;
@@ -15,18 +22,34 @@ static uint64_t get_current_time_ms(void)
     return (uint64_t)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
 }
 
+/**
+ * Sets the output file for TCP connection summaries.
+ * If not set, logs will default to stdout.
+ *
+ * @param fp File pointer to write TCP connection summaries.
+ */
 void tcp_tracker_set_output_file(FILE *fp)
 {
     output_fp = fp;
 }
 
+/**
+ * Tracks and updates the state of a TCP connection.
+ * Handles packet direction, connection keying, and closure on FIN/RST flags.
+ *
+ * @param src_ip Source IP address.
+ * @param dst_ip Destination IP address.
+ * @param src_port Source TCP port.
+ * @param dst_port Destination TCP port.
+ * @param tcp_flags TCP header flags (e.g., SYN, FIN, RST).
+ */
 void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
                                 unsigned short src_port, unsigned short dst_port,
                                 uint8_t tcp_flags)
 {
     char key[128];
 
-    // Normalize key in a direction-independent way
+    // Normalize key for direction-independent connection tracking
     int is_a_before_b = my_strcmp(src_ip, dst_ip) < 0 ||
                         (my_strcmp(src_ip, dst_ip) == 0 && src_port < dst_port);
 
@@ -35,9 +58,11 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
     else
         snprintf(key, sizeof(key), "%s:%u-%s:%u", dst_ip, dst_port, src_ip, src_port);
 
+    // Try to find the connection in the hash table
     tcp_conn_map_t *entry = NULL;
     HASH_FIND_STR(tcp_table, key, entry);
 
+    // New connection if not found
     if (!entry) {
         entry = malloc(sizeof(tcp_conn_map_t));
         if (!entry) return;
@@ -45,7 +70,7 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
         memset(entry, 0, sizeof(*entry));
         strcpy(entry->key, key);
 
-        // Her zaman A->B'yi src olarak yazalım (key'e göre)
+        // Store direction (always save src/dst as A->B based on key)
         if (is_a_before_b) {
             strcpy(entry->conn_data.src_ip, src_ip);
             strcpy(entry->conn_data.dst_ip, dst_ip);
@@ -62,7 +87,7 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
         HASH_ADD_STR(tcp_table, key, entry);
     }
 
-    // IN/OUT sayımı bağlantı yönüne göre doğru yapılmalı
+    // Determine packet direction to count IN/OUT
     int is_fwd = my_strcmp(src_ip, entry->conn_data.src_ip) == 0 &&
                  src_port == entry->conn_data.src_port &&
                  my_strcmp(dst_ip, entry->conn_data.dst_ip) == 0 &&
@@ -73,7 +98,7 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
     else
         entry->conn_data.packet_count_in++;
 
-    // FIN veya RST ile bağlantıyı kapat
+    // Close the connection if FIN or RST is seen
     if (tcp_flags & (TH_FIN | TH_RST)) {
         if (entry->conn_data.end_time_ms == 0)
             entry->conn_data.end_time_ms = get_current_time_ms();
@@ -91,11 +116,16 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
         fprintf(out, "---------------------------------------\n");
         fflush(out);
 
+        // Remove and free entry
         HASH_DEL(tcp_table, entry);
         free(entry);
     }
 }
 
+/**
+ * Frees all remaining connections from the tracking table.
+ * Useful for cleanup at the end of the program or when resetting state.
+ */
 void tcp_tracker_cleanup_all(void)
 {
     tcp_conn_map_t *entry, *tmp;
