@@ -1,9 +1,9 @@
 #include "../test_framework.h"
-#include "../../include/packet_handler.h"
+#include "packet_handler.h"
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
-#include <net/ethernet.h>\
-
+#include <net/ethernet.h>
+#include <arpa/inet.h>
 
 void test_ethernet_parsing(void) {
     size_t len;
@@ -54,11 +54,11 @@ void test_tcp_parsing(void) {
     TEST_ASSERT(packet != NULL, "TCP packet creation");
 
     struct tcphdr *tcp = (struct tcphdr *)packet;
-    TEST_EQUAL(ntohs(tcp->source), 12345, "Source port should be 12345");
-    TEST_EQUAL(ntohs(tcp->dest), 80, "Destination port should be 80");
-    TEST_EQUAL(tcp->syn, 1, "SYN flag should be set");
-    TEST_EQUAL(tcp->ack, 0, "ACK flag should not be set");
-    TEST_EQUAL(tcp->fin, 0, "FIN flag should not be set");
+    TEST_EQUAL(ntohs(tcp->th_sport), 12345, "Source port should be 12345");
+    TEST_EQUAL(ntohs(tcp->th_dport), 80, "Destination port should be 80");
+    TEST_EQUAL(tcp->th_flags & TH_SYN, TH_SYN, "SYN flag should be set");
+    TEST_EQUAL(tcp->th_flags & TH_ACK, 0, "ACK flag should not be set");
+    TEST_EQUAL(tcp->th_flags & TH_FIN, 0, "FIN flag should not be set");
 
     free(packet);
 }

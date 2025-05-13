@@ -1,7 +1,10 @@
 #include "test_framework.h"
+#include "debug_mode.h"
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <net/ethernet.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 TestStats test_stats = {0, 0, 0};
 
@@ -12,12 +15,16 @@ void init_test_suite(void) {
 }
 
 void print_test_summary(void) {
-    printf("\nTest Summary:\n");
-    printf("Total Tests: %d\n", test_stats.total_tests);
-    printf("Passed: %d\n", test_stats.passed_tests);
-    printf("Failed: %d\n", test_stats.failed_tests);
-    printf("Success Rate: %.2f%%\n", 
-           (float)test_stats.passed_tests / test_stats.total_tests * 100);
+    printf("\n" COLOR_BOLD "📋 Test Summary\n" COLOR_RESET);
+    printf("Total Tests : %d\n", test_stats.total_tests);
+    printf(COLOR_GREEN "✔ Passed     : %d\n" COLOR_RESET, test_stats.passed_tests);
+    printf(COLOR_RED   "✘ Failed     : %d\n" COLOR_RESET, test_stats.failed_tests);
+
+    float rate = (test_stats.total_tests > 0)
+               ? ((float)test_stats.passed_tests / test_stats.total_tests) * 100.0f
+               : 0.0f;
+
+    printf(COLOR_YELLOW "📈 Success Rate: %.2f%%\n" COLOR_RESET, rate);
 }
 
 // Thread safety testing implementation
@@ -81,20 +88,15 @@ unsigned char* create_test_tcp_packet(size_t *len) {
     if (!packet) return NULL;
 
     struct tcphdr *tcp = (struct tcphdr *)packet;
-    tcp->source = htons(12345);
-    tcp->dest = htons(80);
-    tcp->seq = htonl(123456789);
-    tcp->ack_seq = htonl(0);
-    tcp->doff = 5;
-    tcp->fin = 0;
-    tcp->syn = 1;
-    tcp->rst = 0;
-    tcp->psh = 0;
-    tcp->ack = 0;
-    tcp->urg = 0;
-    tcp->window = htons(65535);
-    tcp->check = 0;
-    tcp->urg_ptr = 0;
+    tcp->th_sport = htons(12345);
+    tcp->th_dport = htons(80);
+    tcp->th_seq = htonl(123456789);
+    tcp->th_ack = htonl(0);
+    tcp->th_off = 5;
+    tcp->th_flags = TH_SYN;
+    tcp->th_win = htons(65535);
+    tcp->th_sum = 0;
+    tcp->th_urp = 0;
 
     return packet;
 }

@@ -2,17 +2,22 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <net/ethernet.h>
+#include <net/if.h>
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define TEST_PCAP_FILE "tests/fixtures/test_traffic.pcap"
+#ifndef ETH_ALEN
+#define ETH_ALEN 6
+#endif
+
+#define TEST_PCAP_FILE "fixtures/test_traffic.pcap"
 #define NUM_PACKETS 100
 
 // Function to create a TCP packet with HTTP content
-void create_http_packet(u_char *packet, size_t *len, int is_request) {
+void create_http_packet(u_char **packet, size_t *len, int is_request) {
     struct ether_header *eth;
     struct ip *ip;
     struct tcphdr *tcp;
@@ -43,20 +48,20 @@ void create_http_packet(u_char *packet, size_t *len, int is_request) {
     }
     
     // Allocate packet buffer
-    packet = malloc(*len);
-    if (!packet) {
+    *packet = malloc(*len);
+    if (!*packet) {
         *len = 0;
         return;
     }
     
     // Set up Ethernet header
-    eth = (struct ether_header *)packet;
+    eth = (struct ether_header *)*packet;
     memset(eth->ether_dhost, 0xAA, ETH_ALEN);
     memset(eth->ether_shost, 0xBB, ETH_ALEN);
     eth->ether_type = htons(ETHERTYPE_IP);
     
     // Set up IP header
-    ip = (struct ip *)(packet + sizeof(struct ether_header));
+    ip = (struct ip *)(*packet + sizeof(struct ether_header));
     ip->ip_v = 4;
     ip->ip_hl = 5;
     ip->ip_tos = 0;
@@ -71,20 +76,15 @@ void create_http_packet(u_char *packet, size_t *len, int is_request) {
     
     // Set up TCP header
     tcp = (struct tcphdr *)((u_char *)ip + sizeof(struct ip));
-    tcp->source = htons(is_request ? 12345 : 80);
-    tcp->dest = htons(is_request ? 80 : 12345);
-    tcp->seq = htonl(123456789);
-    tcp->ack_seq = htonl(0);
-    tcp->doff = 5;
-    tcp->fin = 0;
-    tcp->syn = is_request ? 1 : 0;
-    tcp->rst = 0;
-    tcp->psh = 1;
-    tcp->ack = is_request ? 0 : 1;
-    tcp->urg = 0;
-    tcp->window = htons(65535);
-    tcp->check = 0; // Let libpcap handle checksum
-    tcp->urg_ptr = 0;
+    tcp->th_sport = htons(is_request ? 12345 : 80);
+    tcp->th_dport = htons(is_request ? 80 : 12345);
+    tcp->th_seq = htonl(123456789);
+    tcp->th_ack = htonl(0);
+    tcp->th_off = 5;
+    tcp->th_flags = is_request ? TH_SYN : TH_ACK;
+    tcp->th_win = htons(65535);
+    tcp->th_sum = 0; // Let libpcap handle checksum
+    tcp->th_urp = 0;
     
     // Add HTTP payload
     payload = (char *)((u_char *)tcp + sizeof(struct tcphdr));
@@ -108,7 +108,7 @@ int main(void) {
     pcap_t *pcap;
     pcap_dumper_t *dumper;
     struct pcap_pkthdr pkthdr;
-    u_char *packet;
+    u_char *packet = NULL;
     size_t len;
     int i;
     
@@ -130,8 +130,8 @@ int main(void) {
     srand(time(NULL));
     for (i = 0; i < NUM_PACKETS; i++) {
         // Create packet
-        create_http_packet(packet, &len, i % 2 == 0);
-        if (len == 0) {
+        create_http_packet(&packet, &len, i % 2 == 0);
+        if (len == 0 || !packet) {
             fprintf(stderr, "Failed to create packet\n");
             continue;
         }
@@ -145,6 +145,7 @@ int main(void) {
         // Write packet to file
         pcap_dump((u_char *)dumper, &pkthdr, packet);
         free(packet);
+        packet = NULL;
     }
     
     // Cleanup
