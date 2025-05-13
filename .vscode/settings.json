@@ -36,6 +36,7 @@
         "ethernet.h": "c",
         "signal_handler.h": "c",
         "signal.h": "c",
-        "queue": "c"
+        "queue": "c",
+        "test_framework.h": "c"
     }
 }
