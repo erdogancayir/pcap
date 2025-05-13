@@ -37,6 +37,7 @@ void *writer_thread(void *arg)
     {
         captured_packet_t pkt;
 
+        LOG_INFO("🔍 Writer thread: Waiting for packets to write...");
         // Dequeue packet; if return -1, queue is done and empty
         int status = packet_queue_dequeue(packet_queue, &pkt);
         if (status == -1)

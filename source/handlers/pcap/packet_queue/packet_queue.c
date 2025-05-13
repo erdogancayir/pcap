@@ -72,6 +72,7 @@ int packet_queue_dequeue(packet_queue_t *q, captured_packet_t *out_packet)
 
     while (q->count == 0 && !q->done)
     {
+        LOG_INFO("🔍 Dequeueing packet");
         pthread_cond_wait(&q->not_empty, &q->mutex);
     }
 
@@ -84,7 +85,7 @@ int packet_queue_dequeue(packet_queue_t *q, captured_packet_t *out_packet)
     *out_packet = q->buffer[q->head];  // copy by value
     q->head = (q->head + 1) % PACKET_QUEUE_SIZE;
     q->count--;
-
+    LOG_INFO("🔍 Dequeued packet");
     pthread_cond_signal(&q->not_full);
     pthread_mutex_unlock(&q->mutex);
 
