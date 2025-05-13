@@ -9,8 +9,6 @@
 #include <unistd.h>
 #include <time.h>
 
-#define ETH_ALEN 6
-
 // Test result tracking
 typedef struct {
     int total_tests;
@@ -18,7 +16,10 @@ typedef struct {
     int failed_tests;
 } TestStats;
 
+// External declarations
 extern TestStats test_stats;
+extern void init_test_suite(void);
+extern void print_test_summary(void);
 
 // Test utilities
 #define TEST_ASSERT(condition, message) do { \
@@ -37,25 +38,5 @@ extern TestStats test_stats;
 
 #define TEST_STRING_EQUAL(expected, actual, message) \
     TEST_ASSERT(strcmp(expected, actual) == 0, message)
-
-// Test suite management
-void init_test_suite(void);
-void print_test_summary(void);
-
-// Thread safety testing utilities
-typedef struct {
-    pthread_mutex_t mutex;
-    int value;
-} ThreadSafeCounter;
-
-void init_thread_safe_counter(ThreadSafeCounter *counter);
-void increment_counter(ThreadSafeCounter *counter);
-int get_counter_value(ThreadSafeCounter *counter);
-
-// Packet generation utilities
-unsigned char* create_test_ethernet_frame(size_t *len);
-unsigned char* create_test_ip_packet(size_t *len);
-unsigned char* create_test_tcp_packet(size_t *len);
-unsigned char* create_test_http_packet(size_t *len);
 
 #endif // TEST_FRAMEWORK_H 

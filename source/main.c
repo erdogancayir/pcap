@@ -9,12 +9,18 @@
 
 int main(int argc, char **argv)
 {
+    if (argc < 5) {
+        print_usage(argv[0]);
+        return -1;
+    }
+
     signal(SIGINT, sigint_handler);  // CTRL+C
 
     cli_config_t config = {0};
     if (parse_cli_args(argc, argv, &config) != 0) {
         return 1;
     }
+    print_config_summary(&config);
 
     packet_queue_t *queue = packet_queue_create(&config);
     if (!queue) {

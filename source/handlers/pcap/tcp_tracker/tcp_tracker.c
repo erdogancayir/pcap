@@ -25,7 +25,15 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
                                 uint8_t tcp_flags)
 {
     char key[128];
-    snprintf(key, sizeof(key), "%s:%u-%s:%u", src_ip, src_port, dst_ip, dst_port);
+
+    // Normalize key in a direction-independent way
+    int is_a_before_b = my_strcmp(src_ip, dst_ip) < 0 ||
+                        (my_strcmp(src_ip, dst_ip) == 0 && src_port < dst_port);
+
+    if (is_a_before_b)
+        snprintf(key, sizeof(key), "%s:%u-%s:%u", src_ip, src_port, dst_ip, dst_port);
+    else
+        snprintf(key, sizeof(key), "%s:%u-%s:%u", dst_ip, dst_port, src_ip, src_port);
 
     tcp_conn_map_t *entry = NULL;
     HASH_FIND_STR(tcp_table, key, entry);
@@ -37,22 +45,39 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
         memset(entry, 0, sizeof(*entry));
         strcpy(entry->key, key);
 
-        strcpy(entry->conn_data.src_ip, src_ip);
-        strcpy(entry->conn_data.dst_ip, dst_ip);
-        entry->conn_data.src_port = src_port;
-        entry->conn_data.dst_port = dst_port;
-        entry->conn_data.start_time_ms = get_current_time_ms();
+        // Her zaman A->B'yi src olarak yazalım (key'e göre)
+        if (is_a_before_b) {
+            strcpy(entry->conn_data.src_ip, src_ip);
+            strcpy(entry->conn_data.dst_ip, dst_ip);
+            entry->conn_data.src_port = src_port;
+            entry->conn_data.dst_port = dst_port;
+        } else {
+            strcpy(entry->conn_data.src_ip, dst_ip);
+            strcpy(entry->conn_data.dst_ip, src_ip);
+            entry->conn_data.src_port = dst_port;
+            entry->conn_data.dst_port = src_port;
+        }
 
+        entry->conn_data.start_time_ms = get_current_time_ms();
         HASH_ADD_STR(tcp_table, key, entry);
     }
 
-    if (my_strcmp(src_ip, entry->conn_data.src_ip) == 0 && src_port == entry->conn_data.src_port)
+    // IN/OUT sayımı bağlantı yönüne göre doğru yapılmalı
+    int is_fwd = my_strcmp(src_ip, entry->conn_data.src_ip) == 0 &&
+                 src_port == entry->conn_data.src_port &&
+                 my_strcmp(dst_ip, entry->conn_data.dst_ip) == 0 &&
+                 dst_port == entry->conn_data.dst_port;
+
+    if (is_fwd)
         entry->conn_data.packet_count_out++;
     else
         entry->conn_data.packet_count_in++;
 
+    // FIN veya RST ile bağlantıyı kapat
     if (tcp_flags & (TH_FIN | TH_RST)) {
-        entry->conn_data.end_time_ms = get_current_time_ms();
+        if (entry->conn_data.end_time_ms == 0)
+            entry->conn_data.end_time_ms = get_current_time_ms();
+
         uint64_t duration = entry->conn_data.end_time_ms - entry->conn_data.start_time_ms;
 
         FILE *out = output_fp ? output_fp : stdout;

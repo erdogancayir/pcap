@@ -1,13 +1,15 @@
 #include "cli_config.h"
 #include "my_libc.h"
+#include "debug_mode.h"
 
 #include <stdio.h>
 #include <string.h>
 
 int parse_cli_args(int argc, char **argv, cli_config_t *config)
 {
-    if (argc < 5) {
-        print_usage(argv[0]);
+    if (argc < 5)
+    {
+        LOG_ERROR("Error: Not enough arguments provided.\n");
         return -1;
     }
 
@@ -16,10 +18,18 @@ int parse_cli_args(int argc, char **argv, cli_config_t *config)
 
     for (int i = 1; i < argc; i++) {
         if (my_strcmp(argv[i], "-i") == 0 && (i + 1) < argc) {
+            if (config->input_type != INPUT_TYPE_MAX) {
+                LOG_ERROR("Error: Cannot specify both interface and pcap file input.\n");
+                return -1;
+            }
             config->input_type = INPUT_TYPE_INTERFACE;
             config->interface_or_file = strdup(argv[i + 1]);
             i++;
         } else if (my_strcmp(argv[i], "-r") == 0 && (i + 1) < argc) {
+            if (config->input_type != INPUT_TYPE_MAX) {
+                LOG_ERROR("Error: Cannot specify both interface and pcap file input.\n");
+                return -1;
+            }
             config->input_type = INPUT_TYPE_PCAP_FILE;
             config->interface_or_file = strdup(argv[i + 1]);
             i++;
@@ -27,19 +37,17 @@ int parse_cli_args(int argc, char **argv, cli_config_t *config)
             config->output_file = strdup(argv[i + 1]);
             i++;
         } else {
-            fprintf(stderr, "Unknown or incomplete argument: %s\n", argv[i]);
-            print_usage(argv[0]);
+            LOG_ERROR("Error: Unknown or incomplete argument: %s\n", argv[i]);
             return -1;
         }
     }
 
-    if (config->input_type == INPUT_TYPE_MAX || config->interface_or_file[0] == '\0' || config->output_file[0] == '\0') {
-        fprintf(stderr, "Error: Missing required arguments.\n");
-        print_usage(argv[0]);
+    if (config->input_type == INPUT_TYPE_MAX || config->interface_or_file[0] == '\0' || config->output_file[0] == '\0')
+    {
+        LOG_ERROR("Error: Missing required arguments.\n");
         return -1;
     }
 
-    print_config_summary(config);
     return 0;
 }
 
