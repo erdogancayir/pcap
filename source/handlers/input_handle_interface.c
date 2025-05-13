@@ -18,36 +18,23 @@ int input_handle_interface(packet_queue_t *packet_queue)
 {
     LOG_INFO("🔍 Capturing live packets from interface => %s 🔍", packet_queue->cli_config->interface_or_file);
 
+    // Start producer thread: captures live packets from the specified interface and enqueues them.
+    pthread_t producer_sniffer_tid;
+    int ret = pthread_create(&producer_sniffer_tid, NULL, sniffer_thread, (void *)packet_queue);
+    if (ret != 0)
+    {
+        LOG_ERROR("Error creating sniffer thread: %s", strerror(ret));
+        return -1;
+    }
+
     // Start consumer thread: continuously writes parsed packets from the queue to the output file.
     pthread_t consumer_writer_tid;
-    int ret = pthread_create(&consumer_writer_tid, NULL, writer_thread, (void *)packet_queue);
+    ret = pthread_create(&consumer_writer_tid, NULL, writer_thread, (void *)packet_queue);
     if (ret != 0) {
-
-        LOG_INFO("🔍 Stopping sniffer thread due to consumer thread failure.");
-
         LOG_ERROR("Error creating consumer thread: %s", strerror(ret));
         return -1;
     }
     
-    LOG_INFO("🔍 Consumer thread started successfully.");
-
-    // Start producer thread: captures live packets from the specified interface and enqueues them.
-    pthread_t producer_sniffer_tid;
-    ret = pthread_create(&producer_sniffer_tid, NULL, sniffer_thread, (void *)packet_queue);
-    if (ret != 0) {
-        LOG_ERROR("Error creating sniffer thread: %s", strerror(ret));
-
-        LOG_INFO("🔍 Stopping consumer thread due to sniffer thread failure.");
-
-        packet_queue_mark_done(packet_queue);
-
-        pthread_join(consumer_writer_tid, NULL);
-
-        return -1;
-    }
-
-    LOG_INFO("🔍 Sniffer thread started successfully.");
-
     // Wait for both threads to complete their tasks before exiting.
     pthread_join(producer_sniffer_tid, NULL);
     pthread_join(consumer_writer_tid, NULL);
