@@ -62,14 +62,34 @@ re: fclean all
 # Tests
 TEST_DIR    := tests
 TEST_OBJDIR := $(TEST_DIR)/obj
+PERF_DIR    := $(TEST_DIR)/performance
+PERF_OBJDIR := $(PERF_DIR)/obj
 
 TEST_SRCS   := $(shell find $(TEST_DIR)/unit -name '*.c') $(TEST_DIR)/test_framework.c
 TEST_OBJS   := $(patsubst %.c, $(TEST_OBJDIR)/%.o, $(TEST_SRCS))
 TEST_BINS   := run_tests
 
+PERF_SRCS   := $(shell find $(PERF_DIR) -name '*.c')
+PERF_OBJS   := $(patsubst %.c, $(PERF_OBJDIR)/%.o, $(PERF_SRCS))
+PERF_BINS   := run_perf_tests
+
+# Performance test source files
+PERF_SRC_FILES := $(SRC_DIR)/handlers/pcap/producer/packer_handler/handle_tcp_packet.c \
+                  $(SRC_DIR)/handlers/pcap/producer/packer_handler/handle_udp_packet.c \
+                  $(SRC_DIR)/packet_queue/packet_queue.c \
+                  $(SRC_DIR)/tcp_tracker/tcp_tracker.c
+
+PERF_SRC_OBJS := $(patsubst %.c, $(PERF_OBJDIR)/%.o, $(PERF_SRC_FILES))
+
 # Compile test object files
 $(TEST_OBJDIR)/%.o: %.c
 	@echo "$(BLUE)🧪 Compiling test$(RESET) $<"
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -I. -Iinclude -I$(TEST_DIR) -c $< -o $@
+
+# Compile performance test object files
+$(PERF_OBJDIR)/%.o: %.c
+	@echo "$(BLUE)📊 Compiling performance test$(RESET) $<"
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -I. -Iinclude -I$(TEST_DIR) -c $< -o $@
 
@@ -78,12 +98,22 @@ $(TEST_BINS): $(TEST_OBJS)
 	@echo "$(GREEN)🔗 Linking test binary$(RESET)..."
 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+# Link performance test executable
+$(PERF_BINS): $(PERF_OBJS) $(PERF_SRC_OBJS)
+	@echo "$(GREEN)🔗 Linking performance test binary$(RESET)..."
+	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 # Run tests
 test: $(TEST_BINS)
 	@echo "$(BOLD)🔍 Running unit tests...$(RESET)"
 	@./$(TEST_BINS)
 
+# Run performance tests
+perf: $(PERF_BINS)
+	@echo "$(BOLD)📊 Running performance tests...$(RESET)"
+	@sudo ./$(PERF_BINS)
+
 # Clean tests
 test_clean:
 	@echo "$(YELLOW)🧹 Cleaning test objects...$(RESET)"
-	@rm -rf $(TEST_OBJDIR) $(TEST_BINS)
+	@rm -rf $(TEST_OBJDIR) $(TEST_BINS) $(PERF_OBJDIR) $(PERF_BINS)
