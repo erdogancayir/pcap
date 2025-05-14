@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "tcp.h": "c",
-        "my_libc.h": "c",
-        "tcp_tracker.h": "c",
-        "stdint.h": "c",
-        "test_framework.h": "c"
-    }
-}
