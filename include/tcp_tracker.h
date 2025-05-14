@@ -11,8 +11,8 @@ typedef struct {
     unsigned short src_port;
     unsigned short dst_port;
 
-    uint64_t start_time_ms;
-    uint64_t end_time_ms;
+    uint64_t start_time_ns;  // Start time in nanoseconds
+    uint64_t end_time_ns;    // End time in nanoseconds
 
     uint64_t packet_count_in;
     uint64_t packet_count_out;

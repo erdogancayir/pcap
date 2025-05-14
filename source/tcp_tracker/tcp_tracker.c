@@ -12,14 +12,23 @@ static tcp_conn_map_t *tcp_table = NULL;
 static FILE *output_fp = NULL;
 
 /**
- * Gets the current time in milliseconds using a monotonic clock.
+ * Gets the current time in nanoseconds using a monotonic clock.
  * This is used to track the start and end times of TCP connections.
  */
-static uint64_t get_current_time_ms(void)
+static uint64_t get_current_time_ns(void)
 {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (uint64_t)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+    return (uint64_t)(ts.tv_sec * 1000000000ULL + ts.tv_nsec);
+}
+
+/**
+ * Converts nanoseconds to milliseconds, ensuring at least 1ms for very short durations
+ */
+static uint64_t ns_to_ms(uint64_t ns)
+{
+    uint64_t ms = ns / 1000000ULL;
+    return ms > 0 ? ms : 1;  // Ensure minimum 1ms duration
 }
 
 /**
@@ -83,7 +92,7 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
             entry->conn_data.dst_port = src_port;
         }
 
-        entry->conn_data.start_time_ms = get_current_time_ms();
+        entry->conn_data.start_time_ns = get_current_time_ns();
         HASH_ADD_STR(tcp_table, key, entry);
     }
 
@@ -99,26 +108,29 @@ void tcp_tracker_process_packet(const char *src_ip, const char *dst_ip,
         entry->conn_data.packet_count_in++;
 
     // Close the connection if FIN or RST is seen
-    if (tcp_flags & (TH_FIN | TH_RST)) {
-        if (entry->conn_data.end_time_ms == 0)
-            entry->conn_data.end_time_ms = get_current_time_ms();
+    if (tcp_flags & (TH_FIN | TH_RST))
+    {
+        if (entry->conn_data.end_time_ns == 0) 
+        {
+            entry->conn_data.end_time_ns = get_current_time_ns();
+            uint64_t duration_ns = entry->conn_data.end_time_ns - entry->conn_data.start_time_ns;
+            uint64_t duration_ms = ns_to_ms(duration_ns);
 
-        uint64_t duration = entry->conn_data.end_time_ms - entry->conn_data.start_time_ms;
+           FILE *out = output_fp ? output_fp : stdout;
+            fprintf(out, "\n[TCP CLOSED] %s:%u -> %s:%u\n",
+                    entry->conn_data.src_ip, entry->conn_data.src_port,
+                    entry->conn_data.dst_ip, entry->conn_data.dst_port);
 
-        FILE *out = output_fp ? output_fp : stdout;
-        fprintf(out, "\n[TCP CLOSED] %s:%u -> %s:%u\n",
-                entry->conn_data.src_ip, entry->conn_data.src_port,
-                entry->conn_data.dst_ip, entry->conn_data.dst_port);
+            fprintf(out, "IN :  %llu packets\n", entry->conn_data.packet_count_in);
+            fprintf(out, "OUT:  %llu packets\n", entry->conn_data.packet_count_out);
+            fprintf(out, "Duration: %llu ms\n", duration_ms);
+            fprintf(out, "---------------------------------------\n");
+            fflush(out);
 
-        fprintf(out, "IN :  %llu packets\n", entry->conn_data.packet_count_in);
-        fprintf(out, "OUT:  %llu packets\n", entry->conn_data.packet_count_out);
-        fprintf(out, "Duration: %llu ms\n", duration);
-        fprintf(out, "---------------------------------------\n");
-        fflush(out);
-
-        // Remove and free entry
-        HASH_DEL(tcp_table, entry);
-        free(entry);
+            // Remove and free entry
+            HASH_DEL(tcp_table, entry);
+            free(entry);
+        }
     }
 }
 
